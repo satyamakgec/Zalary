@@ -4,7 +4,12 @@
   "description": "Smart contract library to provide the confidential salary transfer",
   "main": "truffle.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "truffle compile --optimize-runs 200",
+    "ganache-cli": "node_modules/.bin/ganache-cli -i 15 --gasLimit 8000000",
+    "migrate:local": "truffle migrate --network=development --reset --all",
+    "migrate:ropsten": "truffle migrate --network=ropsten --reset --all",
+    "migrate:kovan": "truffle migrate --network=kovan --reset --all"
   },
   "keywords": [
     "Zknarks",
@@ -14,7 +19,13 @@
   "author": "Polymath Inc",
   "license": "MIT",
   "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "babel-register": "^6.26.0",
+    "ganache-cli": "^6.4.3",
     "openzeppelin-solidity": "^2.2.0",
-    "truffle": "^5.0.18"
+    "truffle": "^5.0.18",
+    "truffle-hdwallet-provider": "^1.0.9",
+    "web3": "^1.0.0-beta.55",
+    "web3-provider-engine": "^15.0.0"
   }
 }
