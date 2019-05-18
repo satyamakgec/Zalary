@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile": "truffle compile --optimize-runs 200",
-    "ganache-cli": "node_modules/.bin/ganache-cli -i 15 --gasLimit 8000000",
+    "ganache-cli": "node_modules/.bin/ganache-cli -i 15 --gasLimit 8000000 -m \"rifle ability usage soccer patrol ten slab outer chase planet small party\"",
     "migrate:local": "truffle migrate --network=development --reset --all",
     "migrate:ropsten": "truffle migrate --network=ropsten --reset --all",
     "migrate:kovan": "truffle migrate --network=kovan --reset --all"
