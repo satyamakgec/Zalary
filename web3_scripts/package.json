@@ -1,0 +1,12 @@
+{
+  "name": "zalary",
+  "version": "1.0.0",
+  "description": "Zalary scripts",
+  "main": "index.js",
+  "repository": "https://github.com/VictorVicente/EthNYC19.git",
+  "author": "Victor <victor.g.vicente@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "web3": "^1.0.0-beta.55"
+  }
+}
