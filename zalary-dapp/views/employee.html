@@ -1,0 +1,165 @@
+<!doctype html>
+<html ng-app="angularApp">
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.4/angular.min.js"></script>
+    <script src="/javascripts/employee.js"></script>
+    <script src="/javascripts/ui-bootstrap.js"></script>
+    <script src="/javascripts/moment.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Overpass:100,200,300,400,600,700,800,900" rel="stylesheet" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-touch.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
+
+  </head>
+
+  <body ng-controller="createCntrl as $ctrl">
+
+    <div style="float: left; background: blue; min-height: 100vh; position: fixed; width: 300px; background: #10559b">
+      <ng-include src="'/nav-employee.html'"></ng-include>
+    </div>
+
+    <br><br>
+
+    <div class="container" style="float: left; padding-left: 350px;">
+
+    <div class="row">
+      <h1 style="font-weight: 100">Employee Dashboard</h1>
+      <br><br>
+    </div>
+
+    <style>
+    label {font-size: 13px; text-transform: uppercase; margin-bottom: .25rem;}
+    .form-control {font-weight: 200}
+    .deny {color: red}
+    .btn {font-size: 12px}
+    .input-padding {padding-bottom: 24px}
+
+    .checklist {list-style-type: none;}
+    .checklist li {padding-bottom: 15px; font-size: 12pt}
+
+    .full button span {
+      background-color: limegreen;
+      border-radius: 32px;
+      color: black;
+    }
+    .partially button span {
+      background-color: orange;
+      border-radius: 32px;
+      color: black;
+    }
+
+    .modal-content  {
+      -webkit-border-radius: 0px !important;
+      -moz-border-radius: 0px !important;
+      border-radius: 0px !important;
+    }
+
+    </style>
+
+    <!-- START ________________ Template for Modal Popup _______________________ -------->
+    <script type="text/ng-template" id="myModalContent.html">
+         <div class="modal-header">
+             <h3 class="modal-title" id="modal-title">Add an Employee</h3>
+         </div>
+         <div class="modal-body" id="modal-body">
+
+           <div class="input-group input-padding" >
+               <span class="input-group-addon" id="basic-addon1">First Name</span>
+               <input ng-model="formData.investors" type="text" class="form-control" placeholder="Max Number of Investors ~ Leave Blank for Unlimited">
+           </div>
+
+           <div class="input-group input-padding" >
+               <span class="input-group-addon" id="basic-addon1">Last Name</span>
+               <input ng-model="formData.investors" type="text" class="form-control" placeholder="Max Number of Investors ~ Leave Blank for Unlimited">
+           </div>
+
+           <div class="input-group input-padding" >
+               <span class="input-group-addon" id="basic-addon1">Job Title</span>
+               <input ng-model="formData.investors" type="text" class="form-control" placeholder="Max Number of Investors ~ Leave Blank for Unlimited">
+           </div>
+
+           <div class="input-group input-padding" >
+               <span class="input-group-addon" id="basic-addon1">Wallet Address</span>
+               <input ng-model="formData.investors" type="text" class="form-control" placeholder="Max Number of Investors ~ Leave Blank for Unlimited">
+           </div>
+
+         </div>
+         <div class="modal-footer">
+             <button class="btn btn-primary" style="background: : #12889d" type="button" ng-click="$ctrl.createToken()">OK</button>
+             <button class="btn btn-warning" style="background: #91a69e; border: none;" type="button" ng-click="$ctrl.cancel()">Cancel</button>
+         </div>
+     </script>
+     <!-- END ________________ Template for Modal Popup _______________________ -------->
+
+     <button id="verifyButton">Transfer to Bank</button>
+    <!-- Install the Wyre Loader -->
+    <script src="https://verify.sendwyre.com/js/widget-loader.js"></script>
+    <script>
+      // configure the widget for metamask authentication
+      var widget = new Wyre.Widget({
+        env: "test",
+        accountId: "AC_PVH8DNPX8EC",
+        auth: { type: "metamask" },
+        operation: {
+            type: "debitcard",
+            sourceCurrency: "USD",
+            destCurrency: "DAI",
+            sourceAmount: 10,
+            dest: "ethereum:0x00e13f97e1980126cbe90F21B9C1b853878031Dd"
+          }
+      });
+
+      // open the widget when the user presses the button
+      document
+        .getElementById("verifyButton")
+        .addEventListener("click", function(e) {
+          widget.open();
+        });
+
+      //add events here
+      widget.on('complete', function(event) {
+        console.log(event);
+      });
+    </script>
+
+    <div class="row">
+
+    <div class="col-md-12" style="padding: 24px; background-color: #fff; box-shadow: 0 2px 6px 0 rgba(0,0,0,.1);">
+
+      <table class="table" style="with: 100%">
+        <tr>
+          <th>Employer Name</th>
+          <th>Start Time</th>
+          <th>End Time</th>
+          <th>Amount</th>
+          <th>Actions</th>
+        </tr>
+
+        <tr ng-repeat="data in data">
+          <td class="td_left"></td>
+          <td class="td_left"></td>
+          <td class="td_left"></td>
+          <td class="td_left"></td>
+          <td><a href="#" ng-click="addToWhitelist(data)"><i class="far fa-2x fa-check-circle"></i></a>&nbsp;&nbsp;<a href="#" class="deny" ng-click="decline(data)"><i class="fas fa-edit"></i>
+        </tr>
+      </table>
+
+      <!--
+      <div class="col-md-12" style="text-align: right">
+        <a href=""><i style="font-size: 30pt; color: #12889d" ng-click="addUser()" class="fas fa-plus-circle"></i></a>
+      </div>
+      -->
+
+        </div>
+
+    </div>
+    </div>
+    </div>
+
+ </body>
+</html>

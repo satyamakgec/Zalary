@@ -1,0 +1,172 @@
+<!doctype html>
+<html ng-app="angularApp">
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.4/angular.min.js"></script>
+    <script src="/javascripts/create.js"></script>
+    <script src="/javascripts/ui-bootstrap.js"></script>
+    <script src="/javascripts/moment.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Overpass:100,200,300,400,600,700,800,900" rel="stylesheet" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-touch.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
+
+  </head>
+ <body ng-controller="createCntrl as $ctrl">
+
+    <div style="float: left; background: blue; min-height: 100vh; position: fixed; width: 300px; background: #10559b">
+      <ng-include src="'/nav.html'"></ng-include>
+    </div>
+
+    <br><br>
+
+    <div class="container" style="float: left; padding-left: 350px;">
+
+    <div class="row">
+      <h1 style="font-weight: 100">Employees</h1>
+      <br><br>
+    </div>
+
+    <style>
+    label {font-size: 13px; text-transform: uppercase; margin-bottom: .25rem;}
+    .form-control {font-weight: 200}
+    .deny {color: red}
+    .btn {font-size: 12px}
+    .input-padding {padding-bottom: 24px}
+
+    .checklist {list-style-type: none;}
+    .checklist li {padding-bottom: 15px; font-size: 12pt}
+
+    .full button span {
+      background-color: limegreen;
+      border-radius: 32px;
+      color: black;
+    }
+    .partially button span {
+      background-color: orange;
+      border-radius: 32px;
+      color: black;
+    }
+
+    .modal-content  {
+      -webkit-border-radius: 0px !important;
+      -moz-border-radius: 0px !important;
+      border-radius: 0px !important;
+    }
+
+    .edit {color: #666;}
+    .pay {color: #098655}
+    .deny {color: #ac2412}
+
+    .action_icons i {font-size: 20px}
+
+    </style>
+
+    <!-- START ________________ Template for Modal Popup _______________________ -------->
+    <script type="text/ng-template" id="myModalContent.html">
+
+        <div ng-show="$ctrl.items.type === 'del'">
+          <div class="modal-header">
+              <div style="float: left; font-size: 18pt"class="modal-title" id="modal-title">Delete an Employee</div>
+              <div style="float: right;"><a style="color: #666" ng-click="$ctrl.cancel()"><i class="fas fa-times-circle"></i></a></div>
+          </div>
+          <div class="modal-body" id="modal-body">
+            Are you sure you want to delete {{$ctrl.items.user.first_name}}&nbsp;{{$ctrl.items.user.last_name}}
+            <br><br>
+            <div>
+                 <button ng-click="deleteEmployee($ctrl.items.user.id)" class="btn btn-primary" style="background: #252d6b; border: none; font-size: 16px; font-weight: 300">Delete Employee</button>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div ng-hide="$ctrl.items.type === 'del'">
+         <div class="modal-header">
+             <div style="float: left; font-size: 18pt"class="modal-title" id="modal-title">Add an Employee</div>
+             <div style="float: right;"><a style="color: #666" ng-click="$ctrl.cancel()"><i class="fas fa-times-circle"></i></a></div>
+         </div>
+         <div class="modal-body" id="modal-body">
+           <form name="myForm" novalidate ng-submit="addEmployee(formData.first_name, formData.last_name, formData.job_title, formData.wallet_address, formData.id)">
+           <label>First Name</label>
+           <div class="input-group input-padding" style="width: 80%" >
+               <input required ng-model="formData.first_name" value="$ctrl.items.user.first_name" type="text" class="form-control" placeholder="">
+           </div>
+
+           <label>Last Name</label>
+           <div class="input-group input-padding" style="width: 80%" >
+               <input required ng-model="formData.last_name" value="'$ctrl.items.user.last_name'" type="text" class="form-control" placeholder="">
+           </div>
+
+           <label>Job Title</label>
+           <div class="input-group input-padding" style="width: 80%" >
+               <input required ng-model="formData.job_title" type="text" value="$ctrl.items.user.job_title" class="form-control" placeholder="">
+           </div>
+
+           <label>Wallet Address</label>
+           <div class="input-group input-padding" style="width: 80%" >
+               <input required ng-model="formData.wallet_address"  value="'$ctrl.items.user.wallet_address'" type="text" class="form-control" placeholder="">
+               <input ng-model="formData.id" type="hidden" class="form-control" value="'$ctrl.items.user.id'" placeholder="">
+           </div>
+
+           <div>
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" type="submit" style="background: #252d6b; border: none; font-size: 16px; font-weight: 300">Add Employee</button>
+           </div>
+
+           </form>
+
+         </div>
+         </div>
+         <!--
+         <div class="modal-footer">
+             <button class="btn btn-primary" style="background: : #12889d" type="button" ng-click="$ctrl.createToken()">OK</button>
+             <button class="btn btn-warning" style="background: #91a69e; border: none;" type="button" ng-click="$ctrl.cancel()">Cancel</button>
+         </div>
+
+       -->
+     </script>
+     <!-- END ________________ Template for Modal Popup _______________________ -------->
+
+    <div class="row">
+
+    <div class="col-md-12" style="padding: 24px; background-color: #fff; box-shadow: 0 2px 6px 0 rgba(0,0,0,.1);">
+
+      <table class="table" style="with: 100%">
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Job Title</th>
+          <th>Wallet Address</th>
+          <th>Actions</th>
+        </tr>
+
+        <tr ng-repeat="employee in employees">
+          <td class="">{{employee.first_name}}</td>
+          <td class="">{{employee.last_name}}</td>
+          <td class="">{{employee.job_title}}</td>
+          <td class="">{{employee.wallet_address}}</td>
+          <td class="action_icons">
+            &nbsp;&nbsp;&nbsp;<a href="#" class="edit" ng-click="addUser(employee)"><i class="fas fa-edit"></i></a>
+            &nbsp;&nbsp;&nbsp;<a href="#" class="pay" ng-click="pay(employee)"><i class="fas fa-money-check-alt"></i></a>
+            &nbsp;&nbsp;&nbsp;<a href="#" class="deny" ng-click="del(employee)"><i class="fas fa-times-circle"></i></a>
+        </tr>
+      </table>
+
+      <div class="col-md-12" style="text-align: right">
+        <a href=""><i style="font-size: 30pt; color: #12889d" ng-click="addUser()" class="fas fa-plus-circle"></i></a>
+      </div>
+
+      </div>
+
+
+
+    </div>
+    </div>
+    </div>
+
+ </body>
+</html>

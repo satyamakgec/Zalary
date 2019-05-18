@@ -1,0 +1,29 @@
+HTML, BODY {background: #ffff; font-family: 'Overpass', sans-serif; font-weight: 200}
+
+TD {
+  padding: 5px;
+  padding-right: 10px;
+  font-size:14px;
+  text-align: center;
+  border-bottom: solid 1px #cecece;
+}
+
+.td_left {text-align: left}
+.td_right {text-align: right}
+.td_center {text-align: center}
+
+TH {font-size: 14px;padding-right: 10px; text-align: center; color: #252d6b; border-bottom: solid 1px #252d6b !important; border-top: 0px !important}
+
+a {
+  color: #00B7FF;
+}
+
+table {border: 0px}
+tr {border: 0px}
+tbody, tr, table {border: 0px !important}
+
+
+h1 {    color: #252d6b;
+    font-weight: 600;}
+
+.token_symbol {color: #252d6b; font-weight: bold;}
