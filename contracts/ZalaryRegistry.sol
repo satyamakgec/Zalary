@@ -47,7 +47,7 @@ contract ZalaryRegistry is Ownable {
     // Cheque no.
     uint256 lastChequeNo; 
     // Storage for payment
-    mapping(address => mapping(address => uint256)) paymentsSchedule;
+    mapping(address => mapping(address => uint256)) public paymentsSchedule;
     // employer -> recepients[]
     mapping(address => address[]) public recipentsByEmployer;
     // Cheque no. -> details
