@@ -1,9 +1,9 @@
 {
   "name": "api-whitelist",
-  "version": "0.0.0",
+  "version": "1.17.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www 8080"
+    "start": "node ./bin/www 8080"
   },
   "dependencies": {
     "consolidate": "^0.15.1",
@@ -28,6 +28,6 @@
     "web3": "^1.0.0-beta.35"
   },
   "devDependencies": {
-    "nodemon": "^1.18.9"
+    "nodemon": "^1.19.0"
   }
 }
