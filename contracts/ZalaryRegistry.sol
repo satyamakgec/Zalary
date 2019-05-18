@@ -64,7 +64,7 @@ contract ZalaryRegistry is Ownable {
     function addEmployer(address _employer, bytes32 _offChainHash) external {
         require(_employer != address(0), "Invalid address");
         //require(_offChainHash.length > 0, "Invalid off chain data");
-        require(employers[_employer].id != 0, "Already exists");
+        require(employers[_employer].id == 0, "Already exists");
         employersList.push(_employer);
         // To access the right index always subtract 1 from id value
         employers[_employer] = Employer(employersList.length, _offChainHash, 0);
