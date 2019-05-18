@@ -1,4 +1,5 @@
 const Web3 = require("web3");
+const { table } = require("table");
 
 async function initializeWeb3() {
   //let provider = await getInjectedProvider();
@@ -15,18 +16,30 @@ async function initializeWeb3() {
 async function getPaymentsByEmployer(employer) {
   let contract = getContract();
 
-  let payments = await contract.methods.getPaymentsByEmployer(employer).call();
+  let employees = await contract.methods
+    .getAllEmployeeByEmployer(employer)
+    .call();
+
+  let calls = [];
+  for (const employee of employees) {
+    calls.push(contract.methods.paymentsSchedule(employer, employee).call);
+  }
+  let payCheques = await makeBatchRequest(calls);
+  const calls2 = [];
+  for (const chequeNo of payCheques) {
+    calls2.push(contract.methods.payCheque(chequeNo).call);
+  }
+  let payments = await makeBatchRequest(calls2);
+
   let result = [];
-  for (let i = 0; i < payments[0].length; i++) {
-    let st = new Date(0);
-    st.setUTCSeconds(payments[1][i]);
-    let et = new Date(0);
-    et.setUTCSeconds(payments[2][i]) / 1000;
+  for (const pay of payments) {
     result.push({
-      employer: payments[0][i],
-      startTime: st,
-      endTime: et,
-      amount: web3.utils.fromWei(payments[3][i].toString())
+      employee: pay[1],
+      startTime: epochToDate(pay[2]),
+      endTime: epochToDate(pay[3]),
+      amount: web3.utils.fromWei(pay[4].toString()),
+      lastReleasingTime: epochToDate(pay[5]),
+      releasedAmount: web3.utils.fromWei(pay[6].toString())
     });
   }
 
@@ -35,9 +48,9 @@ async function getPaymentsByEmployer(employer) {
 
 async function getPaymentsByEmployee(employee) {
   let contract = getContract();
-  let payCheques = (await contract.methods
+  let payCheques = await contract.methods
     .getEmployeeAllPayCheques(employee)
-    .call()).map(pc => pc.toNumber());
+    .call();
 
   const calls = [];
   for (const chequeNo of payCheques) {
@@ -47,18 +60,12 @@ async function getPaymentsByEmployee(employee) {
   let payments = await makeBatchRequest(calls);
   let result = [];
   for (const pay of payments) {
-    let st = new Date(0);
-    st.setUTCSeconds(pay[2]);
-    let et = new Date(0);
-    et.setUTCSeconds(pay[3]);
-    let lr = new Date(0);
-    lr.setUTCSeconds(pay[5]);
     result.push({
       employer: pay[0],
-      startTime: st,
-      endTime: et,
+      startTime: epochToDate(pay[2]),
+      endTime: epochToDate(pay[3]),
       amount: web3.utils.fromWei(pay[4].toString()),
-      lastReleasingTime: lr,
+      lastReleasingTime: epochToDate(pay[5]),
       releasedAmount: web3.utils.fromWei(pay[6].toString())
     });
   }
@@ -75,10 +82,12 @@ amount: string
 async function schedulePayment(employee, startTime, endTime, amount) {
   let contract = getContract();
 
+  let st = Math.floor(startTime.getTime() / 1000);
+  let et = Math.floor(endTime.getTime() / 1000);
   let action = contract.methods.schedulePayment(
     employee,
-    Math.floor(startTime.getTime() / 1000),
-    Math.floor(endTime.getTime() / 1000),
+    st,
+    et,
     web3.utils.toWei(amount)
   );
   return await sendTransaction(action);
@@ -138,7 +147,7 @@ function makeBatchRequest(calls) {
 
   let promises = calls.map(call => {
     return new Promise((res, rej) => {
-      let req = call.request(undefined, (err, data) => {
+      let req = call.request({}, (err, data) => {
         if (err) rej(err);
         else res(data);
       });
@@ -148,6 +157,12 @@ function makeBatchRequest(calls) {
   batch.execute();
 
   return Promise.all(promises);
+}
+
+function epochToDate(epoch) {
+  let result = new Date(0);
+  result.setUTCSeconds(epoch);
+  return result;
 }
 
 function getContract() {
@@ -167,31 +182,68 @@ async function start() {
   let employer = await getEmployer(
     "0x0a519b4b6501f92e8f516230b97aca83257b0c01"
   );
-  console.log(employer.id.toNumber());
-  // await addEmployer("0x0a519b4b6501f92e8f516230b97aca83257b0c01");
-  // let date1 = new Date();
-  // date1.setFullYear(2020);
-  // let date2 = new Date();
-  // date2.setMonth(9);
-  // await schedulePayment(
-  //   "0xE6EE6E95b92BF320a8787AaB082b17331a449dB6",
-  //   new Date(),
-  //   date1,
-  //   "123.45"
-  // );
-  // await schedulePayment(
-  //   "0xE6EE6E95b92BF320a8787AaB082b17331a449dB6",
-  //   new Date(),
-  //   date2,
-  //   "67.89"
-  // );
+  if (employer.id === "0") {
+    await addEmployer("0x0a519b4b6501f92e8f516230b97aca83257b0c01");
+  }
+
+  await schedulePayment(
+    "0x0A519B4B6501F92e8f516230b97ACa83257B0C01",
+    new Date("May 20, 2019 11:13:00"),
+    new Date("May 20, 2020 10:05:00"),
+    "123.45"
+  );
+  await schedulePayment(
+    "0xE6EE6E95b92BF320a8787AaB082b17331a449dB6",
+    new Date("May 20, 2019 11:13:00"),
+    new Date("June 20, 2019 11:13:00"),
+    "67.89"
+  );
 
   let result = await getPaymentsByEmployee(
     "0xE6EE6E95b92BF320a8787AaB082b17331a449dB6"
   );
-  console.log(result);
-  console.log(result[0]);
-  console.log(result[1]);
+  console.log(
+    "Paymanets by Employee 0xE6EE6E95b92BF320a8787AaB082b17331a449dB6"
+  );
+  let dataTable = [
+    ["Employer", "From time", "To time", "Amount", "Available", "Last withdraw"]
+  ];
+  for (const r of result) {
+    dataTable.push([
+      r.employer,
+      r.startTime.toLocaleDateString(),
+      r.endTime.toLocaleDateString(),
+      r.amount,
+      r.releasedAmount,
+      r.lastReleasingTime.toLocaleDateString()
+    ]);
+  }
+  console.log();
+  console.log(table(dataTable));
+
+  let result2 = await getPaymentsByEmployer(
+    "0x0A519B4B6501F92e8f516230b97ACa83257B0C01"
+  );
+  console.log(
+    "Paymanets by Employer 0x0A519B4B6501F92e8f516230b97ACa83257B0C01"
+  );
+  let dataTable2 = [
+    ["Employee", "From time", "To time", "Amount", "Available", "Last withdraw"]
+  ];
+  for (const r of result2) {
+    dataTable2.push([
+      r.employee,
+      r.startTime.toLocaleDateString(),
+      r.endTime.toLocaleDateString(),
+      r.amount,
+      r.releasedAmount,
+      r.lastReleasingTime.toLocaleDateString()
+    ]);
+  }
+  console.log();
+  console.log(table(dataTable2));
+
+  //await withdrawPayment();
 }
 
 start();
