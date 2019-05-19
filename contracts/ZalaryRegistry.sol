@@ -87,7 +87,7 @@ contract ZalaryRegistry is Ownable {
 
     function schedulePayment(address _employee, uint256 _startTime, uint256 _endTime, uint256 _amount) external {
         require(employers[msg.sender].id != 0, "Not authorised");
-        require(_startTime >= now && _endTime > _startTime, "Invalid startTime and endTime");
+        require(_endTime > _startTime, "Invalid startTime and endTime");
         require(_amount != 0, "Invalid Amount");
         //require(employers[msg.sender].funds >= _amount, "Insufficent funds");
         lastChequeNo++;
