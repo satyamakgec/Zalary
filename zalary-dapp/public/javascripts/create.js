@@ -55,10 +55,8 @@ angular.module('angularApp', ['ui.bootstrap'])
       $http.get("/api/make-employer/")
       .then(function(response) {
 
-        console.log("got here");
-
         $scope.transaction = response.data.transaction;
-        console.log($scope.isEmployer);
+        console.log($scope.transaction);
         // sign transaction if users is not an employer
         if($scope.transaction !== false) {
 
@@ -69,7 +67,7 @@ angular.module('angularApp', ['ui.bootstrap'])
           });
         }
 
-      
+
 
       })
 
