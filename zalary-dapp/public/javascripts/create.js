@@ -46,6 +46,7 @@ angular.module('angularApp', ['ui.bootstrap'])
 
     $scope.pageInit = function() {
 
+
       $http.get("/api/employees/")
       .then(function(response) {
         $scope.employees = response.data;
@@ -53,16 +54,22 @@ angular.module('angularApp', ['ui.bootstrap'])
 
       $http.get("/api/make-employer/")
       .then(function(response) {
+
+        console.log("got here");
+
         $scope.transaction = response.data.transaction;
         console.log($scope.isEmployer);
         // sign transaction if users is not an employer
         if($scope.transaction !== false) {
+
           // send getTransaction
           web3.eth.sendTransaction($scope.transaction, function(err, transactionHash) {
             if (!err)
               console.log("transactionHash");
           });
         }
+
+      
 
       })
 

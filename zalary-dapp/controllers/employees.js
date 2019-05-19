@@ -69,28 +69,40 @@ exports.del = async function(req, res) {
 
 // Contract Work
 
-function getContract() {
+async function sendTransaction(action) {
+  let from = (await web3.eth.getAccounts())[0];
+  let gasLimit = await action.estimateGas();
+  let result = {
+    from: from,
+    gasLimit: gasLimit,
+    data: action
+  };
+  return result;
+}
+
+async function getContract() {
   let contractABI = JSON.parse(
     require("fs")
       .readFileSync(__dirname + "/artifacts/ZalaryRegistry.json")
       .toString()
   ).abi;
-  let contractAddress = "0x99095Efc7569B3b8C631765fF849d7d5fE81b735";
+  let contractAddress = "0x373eFb83A48152D13cD7626974AD16de3Ec83109";
   let contract = new web3.eth.Contract(contractABI, contractAddress);
   contract.setProvider(web3.currentProvider);
   return contract;
 }
 
 async function addEmployer(employer) {
-  let contract = getContract();
+  let contract = await getContract();
   let action = contract.methods.addEmployer(employer, web3.utils.fromAscii(""));
   return await sendTransaction(action);
 }
 
-
 exports.makeEmployer = async function(req, res) {
 
-  let transaction = await addEmployer();
+
+
+  let transaction = await addEmployer('0xbe13466fa1e6c8a4f63cee76c7791cebe0d24a54');
 
   return res.send({transaction: transaction });
 
