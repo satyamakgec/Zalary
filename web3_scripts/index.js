@@ -32,14 +32,17 @@ async function getPaymentsByEmployer(employer) {
   let payments = await makeBatchRequest(calls2);
 
   let result = [];
-  for (const pay of payments) {
+  for (let i = 0; i < payments.length; i++) {
+    const pay = payments[i];
+    const chequeNo = payCheques[i];
     result.push({
       employee: pay[1],
       startTime: epochToDate(pay[2]),
       endTime: epochToDate(pay[3]),
       amount: web3.utils.fromWei(pay[4].toString()),
       lastReleasingTime: epochToDate(pay[5]),
-      releasedAmount: web3.utils.fromWei(pay[6].toString())
+      releasedAmount: web3.utils.fromWei(pay[6].toString()),
+      chequeNo: chequeNo
     });
   }
 
@@ -53,20 +56,25 @@ async function getPaymentsByEmployee(employee) {
     .call();
 
   const calls = [];
+  const chequeNumbers = [];
   for (const chequeNo of payCheques) {
+    chequeNumbers.push(chequeNo);
     calls.push(contract.methods.payCheque(chequeNo).call);
   }
 
   let payments = await makeBatchRequest(calls);
   let result = [];
-  for (const pay of payments) {
+  for (let i = 0; i < payments.length; i++) {
+    const pay = payments[i];
+    const chequeNo = chequeNumbers[i];
     result.push({
       employer: pay[0],
       startTime: epochToDate(pay[2]),
       endTime: epochToDate(pay[3]),
       amount: web3.utils.fromWei(pay[4].toString()),
       lastReleasingTime: epochToDate(pay[5]),
-      releasedAmount: web3.utils.fromWei(pay[6].toString())
+      releasedAmount: web3.utils.fromWei(pay[6].toString()),
+      chequeNo: chequeNo
     });
   }
 
@@ -131,8 +139,8 @@ chequeNo: number
 async function withdrawPayment(chequeNo) {
   let contract = getContract();
 
-  await contract.methods
-    .withdrawPayment(chequeNo, false)
+  return contract.methods
+    .withdrawPayment(chequeNo.toString(), false)
     .send({ from: (await web3.eth.getAccounts())[0] });
 }
 
@@ -140,6 +148,36 @@ async function getEmployer(address) {
   let contract = getContract();
 
   return await contract.methods.employers(address).call();
+}
+
+async function getDaiTokens(amount) {
+  let contract = getDaiContract();
+  let action = contract.methods.getTokens(
+    web3.utils.toWei(amount),
+    (await web3.eth.getAccounts())[0]
+  );
+  return sendTransaction(action);
+}
+
+async function approveDai(amount) {
+  let contract = getDaiContract();
+  let action = contract.methods.approve(
+    getContract().options.address,
+    web3.utils.toWei(amount)
+  );
+  return sendTransaction(action);
+}
+
+function getDaiContract() {
+  let contractABI = JSON.parse(
+    require("fs")
+      .readFileSync(`${__dirname}/../build/contracts/StableCoin.json`)
+      .toString()
+  ).abi;
+  let contractAddress = "0x6713Aae570737D44a95F04751C7eC8c6c3c6846B";
+  let contract = new web3.eth.Contract(contractABI, contractAddress);
+  contract.setProvider(web3.currentProvider);
+  return contract;
 }
 
 function makeBatchRequest(calls) {
@@ -183,21 +221,22 @@ async function start() {
     "0x0a519b4b6501f92e8f516230b97aca83257b0c01"
   );
   if (employer.id === "0") {
+    await getDaiTokens("100000");
     await addEmployer("0x0a519b4b6501f92e8f516230b97aca83257b0c01");
   }
 
-  await schedulePayment(
-    "0x0A519B4B6501F92e8f516230b97ACa83257B0C01",
-    new Date("May 20, 2019 11:13:00"),
-    new Date("May 20, 2020 10:05:00"),
-    "123.45"
-  );
-  await schedulePayment(
-    "0xE6EE6E95b92BF320a8787AaB082b17331a449dB6",
-    new Date("May 20, 2019 11:13:00"),
-    new Date("June 20, 2019 11:13:00"),
-    "67.89"
-  );
+  // await schedulePayment(
+  //   "0x0A519B4B6501F92e8f516230b97ACa83257B0C01",
+  //   new Date("May 19, 2019 19:15:00"),
+  //   new Date("May 20, 2020 10:05:00"),
+  //   "123.45"
+  // );
+  // await schedulePayment(
+  //   "0xE6EE6E95b92BF320a8787AaB082b17331a449dB6",
+  //   new Date("May 20, 2019 11:13:00"),
+  //   new Date("June 20, 2019 11:13:00"),
+  //   "67.89"
+  // );
 
   let result = await getPaymentsByEmployee(
     "0xE6EE6E95b92BF320a8787AaB082b17331a449dB6"
@@ -206,7 +245,15 @@ async function start() {
     "Paymanets by Employee 0xE6EE6E95b92BF320a8787AaB082b17331a449dB6"
   );
   let dataTable = [
-    ["Employer", "From time", "To time", "Amount", "Available", "Last withdraw"]
+    [
+      "Employer",
+      "From time",
+      "To time",
+      "Amount",
+      "Withdrawn",
+      "Last withdraw",
+      "Cheque No."
+    ]
   ];
   for (const r of result) {
     dataTable.push([
@@ -215,7 +262,8 @@ async function start() {
       r.endTime.toLocaleDateString(),
       r.amount,
       r.releasedAmount,
-      r.lastReleasingTime.toLocaleDateString()
+      r.lastReleasingTime.toLocaleDateString(),
+      r.chequeNo
     ]);
   }
   console.log();
@@ -228,7 +276,15 @@ async function start() {
     "Paymanets by Employer 0x0A519B4B6501F92e8f516230b97ACa83257B0C01"
   );
   let dataTable2 = [
-    ["Employee", "From time", "To time", "Amount", "Available", "Last withdraw"]
+    [
+      "Employee",
+      "From time",
+      "To time",
+      "Amount",
+      "Withdrawn",
+      "Last withdraw",
+      "Cheque No."
+    ]
   ];
   for (const r of result2) {
     dataTable2.push([
@@ -237,13 +293,23 @@ async function start() {
       r.endTime.toLocaleDateString(),
       r.amount,
       r.releasedAmount,
-      r.lastReleasingTime.toLocaleDateString()
+      r.lastReleasingTime.toLocaleDateString(),
+      r.chequeNo
     ]);
   }
   console.log();
   console.log(table(dataTable2));
 
-  //await withdrawPayment();
+  console.log(
+    web3.utils.fromWei(
+      await getDaiContract()
+        .methods.balanceOf(getContract().options.address)
+        .call()
+    )
+  );
+  //await approveDai("1000");
+  //await addFunds("1000");
+  await withdrawPayment(1);
 }
 
 start();
