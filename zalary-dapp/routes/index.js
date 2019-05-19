@@ -13,6 +13,12 @@ router.get('/api/payments/:id', function(req, res, next) {
   var data = payments.index(req, res, next);
 })
 
+router.get('/api/payments-fund/', function(req, res, next) {
+  var data = payments.fund(req, res, next);
+})
+
+
+
 // Employees  Calls
 router.get('/api/employees/', function(req, res, next) {
   var data = employees.index(req, res, next);

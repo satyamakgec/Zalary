@@ -4,7 +4,7 @@
 //  • All Blockchain call or pointing to TESTNET on KOVAN.  This must be changed to Mainnet
 // END NOTES FOR PARTNERS
 angular.module('angularApp', ['ui.bootstrap'])
-  .controller('createCntrl', function($scope, $http, $window,$uibModal, $log, $document) {
+  .controller('createCntrl', function($scope, $http, $window,$uibModal, $log, $document, $q) {
     //--------- Web3 Code ------- Browser ///
         // call metamask if not enabled
         $window.addEventListener('load', async function(e) {
@@ -41,11 +41,40 @@ angular.module('angularApp', ['ui.bootstrap'])
       $http.get("/api/payments/")
       .then(function(response) {
 
-        
-
       })
     }
 
+    $scope.fund = function(transaction) {
+      console.log(transaction);
+    }
+
+    $scope.fundAccount = function () {
+
+      function fundAccount() {
+        let defer = $q.defer();
+        $http.get("/api/payments-fund/")
+        .then(response => {
+
+          web3.eth.sendTransaction(response.data.daiTransaction, function(err, transactionHash) {
+            if (err) {
+
+            } else {
+              $q.resolve(transactionHash);
+              console.log("got past resolve", transactionHash);
+
+              web3.eth.sendTransaction(response.data.transaction, function(err, transactionHash) {
+                if (!err)
+                  console.log();
+              });
+            }
+          });
+        }, reason => {
+          $q.reject(reason);
+        });
+        return defer.promise;
+      }
+      fundAccount();
+    }
 
   var $ctrl = this;
 

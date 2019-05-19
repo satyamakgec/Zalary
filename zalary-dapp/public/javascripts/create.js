@@ -65,6 +65,8 @@ angular.module('angularApp', ['ui.bootstrap'])
             if (!err)
               console.log("transactionHash");
           });
+        } else {
+          
         }
 
 

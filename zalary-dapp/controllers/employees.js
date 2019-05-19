@@ -139,11 +139,11 @@ async function getEmployer(address) {
 exports.makeEmployer = async function(req, res) {
 
   var transaction = false;
-  let employer = await getEmployer('0xbe13466fa1e6c8a4f63cee76c7791cebe0d24a54');
+  let employer = await getEmployer(await web3.eth.getAccounts())[0];
 
   if (employer.id.toNumber() === 0) {
     await getDaiTokens("100000");
-    transaction = await addEmployer("0xbe13466fa1e6c8a4f63cee76c7791cebe0d24a54");
+    transaction = await addEmployer(await web3.eth.getAccounts())[0];
   }
 
   return res.send({transaction: transaction });
