@@ -97,7 +97,10 @@ angular.module('angularApp', ['ui.bootstrap'])
     }
 
     $rootScope.$on('added', function(event, data){
-      $scope.getEmployees();
+      $http.get("/api/employees/")
+      .then(function(response) {
+        $scope.employees = response.data;
+      })
     })
 
   var $ctrl = this;

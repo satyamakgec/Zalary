@@ -4,12 +4,9 @@ const Moment = require('moment')
 
 const { Code, Investor, Kyccheck, Employees } = require('./helpers/sequelize')
 
-const zalaryRegistryAddress = "0x359350407c62448fbd6841f3e808022105a4d628";
-const stableCoinAddress = "0x24ef379be48308de694417dff436aa53b199df0f";
-
-const web3 = new Web3(new Web3.providers.HttpProvider('http://kovan.infura.io/v3/57243a8f8787423f83f3a6d05d912581'));
-
-
+const zalaryRegistryAddress = "0x447b5bAa5DBE907E32e0E73F70187257CeEC333A";
+const stableCoinAddress = "0xf0bd362d8223e97280508eEc735A3F440b6C6328";
+const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 
 async function addFunds(amount) {
   let contract = await getContract();
@@ -176,6 +173,15 @@ async function getPaymentsByEmployee(employee) {
   return result;
 }
 
+async function withdrawPayment(chequeNo) {
+
+  let contract = await getContract();
+
+  let action = contract.methods.withdrawPayment(chequeNo, false);
+
+  return await sendTransaction(action, zalaryRegistryAddress);
+}
+
 exports.fund = async function(req, res) {
 
   let amount = "10000"
@@ -197,18 +203,22 @@ exports.schedule = async function(req, res) {
 
 exports.index = async function(req, res) {
 
-
   let payments = await getPaymentsByEmployer((await web3.eth.getAccounts())[0])
-
   return res.send({payments: payments})
 
 };
 
 exports.employee = async function(req, res) {
 
-
-  let payments = await getPaymentsByEmployee((await web3.eth.getAccounts())[0])
-
+  let payments = await getPaymentsByEmployee(req.body.address)
   return res.send({payments: payments})
+
+}
+
+exports.redeem = async function(req, res) {
+
+  var chequeNo = web3.utils.hexToNumberString(req.body.chequeNo._hex);
+  let redeem = await withdrawPayment(chequeNo)
+  return res.send({transaction: redeem})
 
 }

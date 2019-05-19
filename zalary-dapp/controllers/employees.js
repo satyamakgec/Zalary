@@ -5,10 +5,10 @@ const Moment = require('moment')
 
 const { Code, Investor, Kyccheck, Employees } = require('./helpers/sequelize')
 
-const zalaryRegistryAddress = "0x359350407c62448fbd6841f3e808022105a4d628";
-const stableCoinAddress = "0x24ef379be48308de694417dff436aa53b199df0f";
+const zalaryRegistryAddress = "0x447b5bAa5DBE907E32e0E73F70187257CeEC333A";
+const stableCoinAddress = "0xf0bd362d8223e97280508eEc735A3F440b6C6328";
 
-const web3 = new Web3(new Web3.providers.HttpProvider('http://kovan.infura.io/v3/57243a8f8787423f83f3a6d05d912581'));
+const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 
 exports.index = async function(req, res) {
 
@@ -60,9 +60,7 @@ exports.add = async function(req, res) {
 };
 
 exports.del = async function(req, res) {
-
-  console.log("did i get here");
-
+  
   var employee = await Employees.findByPk(req.params.id);
   employee.destroy();
   return res.send({success: true});
@@ -137,13 +135,10 @@ async function getEmployer(address) {
 }
 
 
-
-
 exports.makeEmployer = async function(req, res) {
 
   var transaction = false;
   let employer = await getEmployer((await web3.eth.getAccounts())[0]);
-
 
   if (employer.id.toNumber() === 0) {
     await getDaiTokens("100000");

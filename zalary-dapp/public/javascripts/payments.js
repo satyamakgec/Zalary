@@ -62,7 +62,11 @@ angular.module('angularApp', ['ui.bootstrap'])
 
 
                 web3.eth.sendTransaction(response.data.transaction, function(err, transactionHash) {
-                  if (!err) {}
+                  if (err) {
+
+                  } else {
+
+                  }
 
                 });
               }
@@ -209,7 +213,6 @@ angular.module('angularApp').controller('ModalInstanceCtrl', function($uibModalI
     var date1 = moment($scope.formData.dt).unix()
     var date2 = moment($scope.formData.dt2).unix()
 
-
     data = {wallet: $scope.formData.employee.wallet_address, s: date1, e: date2, amount: $scope.formData.amount}
 
     $http.post('/api/payments-schedule/', data).
@@ -218,6 +221,7 @@ angular.module('angularApp').controller('ModalInstanceCtrl', function($uibModalI
       web3.eth.sendTransaction(response.data.transaction, function(err, transactionHash) {
         if (!err) {
 
+          //$rootScope.broadcast("", )
           $uibModalInstance.dismiss('cancel');
 
         }

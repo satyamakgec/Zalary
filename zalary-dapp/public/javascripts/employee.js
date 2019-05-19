@@ -18,7 +18,11 @@ angular.module('angularApp', ['ui.bootstrap'])
                   $scope.issuerAddress = true;
                   $scope.issuerAddress = web3.eth.accounts.givenProvider.selectedAddress;
 
-                  $http.get("/api/get-payments/")
+                  console.log($scope.issuerAddress);
+
+                  var data = {address: $scope.issuerAddress}
+
+                  $http.post("/api/get-payments/", data)
                   .then(function(response) {
 
                     $scope.payments = response.data.payments
@@ -42,6 +46,40 @@ angular.module('angularApp', ['ui.bootstrap'])
 
     //--------- Web3 Code ------- Browser ///
     $scope.formData = {};
+
+    $scope.redeem = function(chequeNo) {
+
+      data = {chequeNo: chequeNo}
+
+      $http.post("/api/redeem-payments/", data)
+      .then(function(response) {
+
+        console.log(response.data.transaction);
+
+        web3.eth.sendTransaction(response.data.transaction, function(err, transactionHash) {
+          if (!err) {
+
+            var data = {address: $scope.issuerAddress}
+            $http.post("/api/get-payments/", data)
+            .then(function(response) {
+
+              $scope.payments = response.data.payments
+
+              console.log(response);
+              //console.log(response.data.listOfTokens);
+            });
+
+          }
+
+        });
+
+        //console.log(response);
+        //console.log(response.data.listOfTokens);
+      });
+
+
+
+    }
 
     $scope.addUser = function() {
 

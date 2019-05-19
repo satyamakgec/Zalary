@@ -96,8 +96,7 @@
      </script>
      <!-- END ________________ Template for Modal Popup _______________________ -------->
 
-     <button id="verifyButton">Transfer to Bank</button>
-    <!-- Install the Wyre Loader -->
+    <!-- Install the Wyre Loader  <button id="verifyButton">Transfer to Bank</button>
     <script src="https://verify.sendwyre.com/js/widget-loader.js"></script>
     <script>
       // configure the widget for metamask authentication
@@ -126,6 +125,8 @@
         console.log(event);
       });
     </script>
+    -->
+
 
     <div class="row">
 
@@ -137,6 +138,7 @@
           <th>Start Time</th>
           <th>End Time</th>
           <th>Amount</th>
+          <th>Withdrawn</th>
           <th>Actions</th>
         </tr>
 
@@ -144,8 +146,9 @@
           <td class="td_left">{{data.employer}}</td>
           <td class="td_left">{{data.startTime | date : shortDate}}</td>
           <td class="td_left">{{data.endTime | date : shortDate}}</td>
-          <td class="td_left">{{data.amount}}</td>
-          <td><a href="#" ng-click="redeem(chequeNo)"><i class="far fa-2x fa-check-circle"></i></a>&nbsp;&nbsp;<a href="#" class=""  style="color: #333"ng-click="decline(data)"><i class="fas fa-money-check-alt"></i>
+          <td class="td_left">{{data.amount | number:2}}</td>
+          <td class="td_left">{{data.releasedAmount | number:2}}</td>
+          <td><a href="#" class=""  style="color: #333"ng-click="redeem(data.chequeNo)"><i class="fas fa-money-check-alt"></i>
         </tr>
       </table>
 

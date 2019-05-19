@@ -17,11 +17,16 @@ router.get('/api/payments-fund/', function(req, res, next) {
   var data = payments.fund(req, res, next);
 })
 
+router.post('/api/redeem-payments/', function(req, res, next) {
+  var data = payments.redeem(req, res, next);
+})
+
+
 router.post('/api/payments-schedule/', function(req, res, next) {
   var data = payments.schedule(req, res, next);
 })
 
-router.get('/api/get-payments/', function(req, res, next) {
+router.post('/api/get-payments/', function(req, res, next) {
   var data = payments.employee(req, res, next);
 })
 
