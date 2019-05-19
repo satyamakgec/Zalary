@@ -140,12 +140,12 @@
           <th>Actions</th>
         </tr>
 
-        <tr ng-repeat="data in data">
-          <td class="td_left"></td>
-          <td class="td_left"></td>
-          <td class="td_left"></td>
-          <td class="td_left"></td>
-          <td><a href="#" ng-click="addToWhitelist(data)"><i class="far fa-2x fa-check-circle"></i></a>&nbsp;&nbsp;<a href="#" class="deny" ng-click="decline(data)"><i class="fas fa-edit"></i>
+        <tr ng-repeat="data in payments">
+          <td class="td_left">{{data.employer}}</td>
+          <td class="td_left">{{data.startTime | date : shortDate}}</td>
+          <td class="td_left">{{data.endTime | date : shortDate}}</td>
+          <td class="td_left">{{data.amount}}</td>
+          <td><a href="#" ng-click="redeem(chequeNo)"><i class="far fa-2x fa-check-circle"></i></a>&nbsp;&nbsp;<a href="#" class=""  style="color: #333"ng-click="decline(data)"><i class="fas fa-money-check-alt"></i>
         </tr>
       </table>
 

@@ -52,9 +52,11 @@ angular.module('angularApp', ['ui.bootstrap'])
         $scope.employees = response.data;
       })
 
+
+
       $http.get("/api/make-employer/")
       .then(function(response) {
-
+        console.log("pageInit2");
         $scope.transaction = response.data.transaction;
         console.log($scope.transaction);
         // sign transaction if users is not an employer
@@ -66,7 +68,7 @@ angular.module('angularApp', ['ui.bootstrap'])
               console.log("transactionHash");
           });
         } else {
-          
+
         }
 
 

@@ -17,7 +17,13 @@ router.get('/api/payments-fund/', function(req, res, next) {
   var data = payments.fund(req, res, next);
 })
 
+router.post('/api/payments-schedule/', function(req, res, next) {
+  var data = payments.schedule(req, res, next);
+})
 
+router.get('/api/get-payments/', function(req, res, next) {
+  var data = payments.employee(req, res, next);
+})
 
 // Employees  Calls
 router.get('/api/employees/', function(req, res, next) {
@@ -39,5 +45,7 @@ router.delete('/api/employees/:id', function(req, res, next) {
 router.post('/api/employees/', function(req, res, next) {
   var data = employees.add(req, res, next);
 })
+
+
 
 module.exports = router;
