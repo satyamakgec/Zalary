@@ -35,7 +35,7 @@ contract ZalaryRegistry is Ownable {
         uint256 endTime;
         uint256 amount;
         uint256 lastReleasingTime;
-        uint256 releasedAmount; 
+        uint256 releasedAmount;
     }
 
     // Storage
@@ -45,7 +45,7 @@ contract ZalaryRegistry is Ownable {
     IERC20 paymentCurrency;
 
     // Cheque no.
-    uint256 lastChequeNo; 
+    uint256 lastChequeNo;
     // Storage for payment
     mapping(address => mapping(address => uint256)) public paymentsSchedule;
     // employer -> recepients[]
@@ -53,7 +53,7 @@ contract ZalaryRegistry is Ownable {
     // Cheque no. -> details
     mapping(uint256 => Payment) public payCheque;
     // employee -> Cheque no.
-    mapping(address => uint256[]) employeePayCheque; 
+    mapping(address => uint256[]) employeePayCheque;
 
     constructor(address _paymentCurrency) public {
         // Right now we are only supporting DAI
@@ -109,21 +109,22 @@ contract ZalaryRegistry is Ownable {
 
     function withdrawPayment(uint256 _chequeNo, bool _allowDrained) external {
         require(_chequeNo <= lastChequeNo, "Invalid cheque");
-        Payment storage _payment = payCheque[_chequeNo];
-        require(_payment.amount >= _payment.releasedAmount, "Already dried");
-        uint256 releasingSeconds = now.sub(_payment.lastReleasingTime);
-        uint256 ratio = _payment.amount.div(_payment.endTime.sub(_payment.startTime));
-        
-        uint256 fundsPayed = releasingSeconds.mul(ratio);
+        Payment storage payment = payCheque[_chequeNo];
+        require(payment.amount > payment.releasedAmount, "Already dried");
+        uint256 fundsPaid;
         // handling dust here
-        if (_payment.endTime >= now && _allowDrained) {
-            fundsPayed = _payment.amount.sub(_payment.releasedAmount);
+        if (payment.endTime >= now && _allowDrained) {
+            fundsPaid = payment.amount.sub(payment.releasedAmount);
+        } else {
+            uint256 releasingSeconds = now.sub(payment.lastReleasingTime);
+            uint256 elapsedTime = payment.endTime.sub(payment.startTime);
+            fundsPaid = (payment.amount.mul(releasingSeconds)).div(elapsedTime);
         }
-        _payment.lastReleasingTime = now;
-        _payment.releasedAmount = _payment.releasedAmount.add(fundsPayed);
-        require(paymentCurrency.transfer(_payment.receipient, fundsPayed), "Invalid transfer");
-        employers[_payment.employer].funds = employers[_payment.employer].funds.sub(fundsPayed);
-        emit WithdrawPayment(_chequeNo, fundsPayed, _payment.receipient);
+        payment.lastReleasingTime = now;
+        payment.releasedAmount = payment.releasedAmount.add(fundsPaid);
+        require(paymentCurrency.transfer(payment.receipient, fundsPaid), "Invalid transfer");
+        employers[payment.employer].funds = employers[payment.employer].funds.sub(fundsPaid);
+        emit WithdrawPayment(_chequeNo, fundsPaid, payment.receipient);
     }
 
     function withdrawEmployerFunds() external {
@@ -141,6 +142,6 @@ contract ZalaryRegistry is Ownable {
     function getAllEmployeeByEmployer(address _employer) external view returns(address[] memory) {
         return recipentsByEmployer[_employer];
     }
-    
+
 
 }
