@@ -18,10 +18,12 @@ angular.module('angularApp', ['ui.bootstrap'])
                   $scope.issuerAddress = true;
                   $scope.issuerAddress = web3.eth.accounts.givenProvider.selectedAddress;
 
-                  $http.get("/api/get-tokens/" + $scope.issuerAddress)
+                  $http.get("/api/get-payments/")
                   .then(function(response) {
-                    console.log(response.data.listOfTokens);
-                    $scope.yourTokens = response.data.listOfTokens;
+
+                    $scope.payments = response.data.payments
+
+                    console.log(response);
                     //console.log(response.data.listOfTokens);
                   });
               } catch (error) {
