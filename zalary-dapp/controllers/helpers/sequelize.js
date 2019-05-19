@@ -1,7 +1,4 @@
 const Sequelize = require('sequelize');
-const AccessCodesModel = require('../../models/whitelist')
-const InvestorModel = require('../../models/investors')
-const KYCModel = require('../../models/kyccheck')
 const EmployeeModel = require('../../models/employees')
 
 
@@ -12,15 +9,9 @@ const sequelize = new Sequelize('investor', 'root', 'Burton13#', {
   operatorsAliases: false,
 });
 
-const Code = AccessCodesModel(sequelize, Sequelize);
-const Investor = InvestorModel(sequelize, Sequelize);
-const Kyccheck = KYCModel(sequelize, Sequelize);
 const Employees = EmployeeModel(sequelize, Sequelize);
 
 module.exports = {
-  Code,
-  Investor,
-  Kyccheck,
   Employees
 }
 
